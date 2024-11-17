@@ -19,6 +19,9 @@
         <label for="syllables">Syllable Structures (comma-separated):</label><br>
         <input type="text" id="syllables" placeholder="e.g., CV,CVC,VC"><br><br>
 
+        <label for="phonotactic">Custom Phonotactic Constraints (optional):</label><br>
+        <input type="text" id="phonotactic" placeholder="e.g., no repeated 's', no 'kt'"><br><br>
+
         <label for="grammar">Select grammar type:</label><br>
         <select id="grammar">
             <option value="SVO">SVO (Subject-Verb-Object)</option>
@@ -29,8 +32,10 @@
 
         <button id="generateBtn">Generate Conlang</button>
         <div id="output">
-            <h2>Your Conlang:</h2>
-            <p id="conlangResult"></p>
+            <h2>Your Conlang Dictionary:</h2>
+            <div id="dictionaryOutput"></div>
+            <h2>Interactive Example Sentences:</h2>
+            <p id="sentenceOutput"></p>
         </div>
     </div>
     <script src="script.js"></script>
