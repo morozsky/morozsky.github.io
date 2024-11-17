@@ -8,15 +8,10 @@ function generateConlang() {
     const phonotacticConstraints = document.getElementById('phonotactic').value.split(',').map(rule => rule.trim()).filter(Boolean);
     const grammarRule = document.getElementById('grammar').value;
 
-    // Default fallback values
-    if (consonants.length === 0) {
-        consonants.push('k', 't', 'r', 'm', 'l', 'z', 'p', 'n', 'sh', 'v');
-    }
-    if (vowels.length === 0) {
-        vowels.push('a', 'e', 'i', 'o', 'u');
-    }
-    if (syllableStructures.length === 0) {
-        syllableStructures.push('CV', 'CVC', 'VC');
+    // Validate input
+    if (consonants.length === 0 || vowels.length === 0 || syllableStructures.length === 0) {
+        alert('Please provide consonants, vowels, and syllable structures.');
+        return;
     }
 
     // Simple English words for translations
