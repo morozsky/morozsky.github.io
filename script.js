@@ -1,26 +1,74 @@
 document.getElementById('generateBtn').addEventListener('click', generateConlang);
 
 function generateConlang() {
-    const phonemes = ['ka', 'to', 'ri', 'mi', 'lu', 'za', 'po', 'ni', 'sha', 've'];
-    const grammarRules = ['SVO (Subject-Verb-Object)', 'SOV (Subject-Object-Verb)', 'VSO (Verb-Subject-Object)'];
-    const vocabularySize = Math.floor(Math.random() * 50) + 50;
+    // Get user input or set defaults
+    const consonants = document.getElementById('consonants').value.split(',').filter(Boolean) || ['k', 't', 'r', 'm', 'l', 'z', 'p', 'n', 'sh', 'v'];
+    const vowels = document.getElementById('vowels').value.split(',').filter(Boolean) || ['a', 'e', 'i', 'o', 'u'];
+    const syllableStructures = document.getElementById('syllables').value.split(',').filter(Boolean) || ['CV', 'CVC', 'VC'];
+    const grammarRule = document.getElementById('grammar').value;
 
-    const generatedWords = [];
-    for (let i = 0; i < vocabularySize; i++) {
-        const wordLength = Math.floor(Math.random() * 3) + 2;
-        let word = '';
-        for (let j = 0; j < wordLength; j++) {
-            word += phonemes[Math.floor(Math.random() * phonemes.length)];
-        }
-        generatedWords.push(word);
+    // Phonotactic rules: no double identical consonants or vowels
+    function isPhonotacticallyValid(word) {
+        return !/(.)\1/.test(word); // Disallows repeating the same letter back-to-back
     }
 
-    const grammarRule = grammarRules[Math.floor(Math.random() * grammarRules.length)];
+    // Create a word based on user-defined syllable structure
+    function createWord() {
+        let word = '';
+        const structure = syllableStructures[Math.floor(Math.random() * syllableStructures.length)];
 
-    document.getElementById('conlangResult').innerHTML = `
-        <strong>Grammar:</strong> ${grammarRule}<br>
-        <strong>Sample Vocabulary (${vocabularySize} words):</strong> ${generatedWords.join(', ')}
-    `;
+        for (let i = 0; i < structure.length; i++) {
+            if (structure[i] === 'C') {
+                word += consonants[Math.floor(Math.random() * consonants.length)];
+            } else if (structure[i] === 'V') {
+                word += vowels[Math.floor(Math.random() * vowels.length)];
+            }
+        }
 
+        // Ensure word is valid according to phonotactic rules
+        return isPhonotacticallyValid(word) ? word : createWord();
+    }
+
+    // Generate words with basic morphology (prefixes/suffixes)
+    const prefixes = ['pre', 'un', 'anti', 'neo'];
+    const suffixes = ['-ish', '-ly', '-ment', '-ist'];
+
+    function generateMorphedWord(baseWord) {
+        const usePrefix = Math.random() > 0.5;
+        const useSuffix = Math.random() > 0.5;
+
+        let word = baseWord;
+        if (usePrefix) {
+            word = prefixes[Math.floor(Math.random() * prefixes.length)] + word;
+        }
+        if (useSuffix) {
+            word += suffixes[Math.floor(Math.random() * suffixes.length)];
+        }
+
+        return isPhonotacticallyValid(word) ? word : baseWord;
+    }
+
+    const dictionary = {
+        noun: [],
+        verb: [],
+        adjective: [],
+        adverb: []
+    };
+
+    for (const part in dictionary) {
+        const wordCount = Math.floor(Math.random() * 10) + 5;
+        for (let i = 0; i < wordCount; i++) {
+            const baseWord = createWord();
+            dictionary[part].push(generateMorphedWord(baseWord));
+        }
+    }
+
+    // Display the result
+    let resultHTML = `<strong>Grammar:</strong> ${grammarRule}<br>`;
+    for (const part in dictionary) {
+        resultHTML += `<strong>${part.charAt(0).toUpperCase() + part.slice(1)}s:</strong> ${dictionary[part].join(', ')}<br>`;
+    }
+
+    document.getElementById('conlangResult').innerHTML = resultHTML;
     document.getElementById('output').style.display = 'block';
 }
