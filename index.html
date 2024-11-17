@@ -9,7 +9,24 @@
 <body>
     <div class="container">
         <h1>Conlang Generator</h1>
-        <p>Generate your own constructed language with unique grammar, vocabulary, and phonetics!</p>
+        <p>Customize your constructed language:</p>
+        <label for="consonants">Consonants (comma-separated):</label><br>
+        <input type="text" id="consonants" placeholder="e.g., k,t,r,m,l,z"><br><br>
+
+        <label for="vowels">Vowels (comma-separated):</label><br>
+        <input type="text" id="vowels" placeholder="e.g., a,e,i,o,u"><br><br>
+
+        <label for="syllables">Syllable Structures (comma-separated):</label><br>
+        <input type="text" id="syllables" placeholder="e.g., CV,CVC,VC"><br><br>
+
+        <label for="grammar">Select grammar type:</label><br>
+        <select id="grammar">
+            <option value="SVO">SVO (Subject-Verb-Object)</option>
+            <option value="SOV">SOV (Subject-Object-Verb)</option>
+            <option value="VSO">VSO (Verb-Subject-Object)</option>
+            <option value="OSV">OSV (Object-Subject-Verb)</option>
+        </select><br><br>
+
         <button id="generateBtn">Generate Conlang</button>
         <div id="output">
             <h2>Your Conlang:</h2>
