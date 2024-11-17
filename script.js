@@ -5,14 +5,22 @@ function generateConlang() {
     const consonants = document.getElementById('consonants').value.split(',').filter(Boolean) || ['k', 't', 'r', 'm', 'l', 'z', 'p', 'n', 'sh', 'v'];
     const vowels = document.getElementById('vowels').value.split(',').filter(Boolean) || ['a', 'e', 'i', 'o', 'u'];
     const syllableStructures = document.getElementById('syllables').value.split(',').filter(Boolean) || ['CV', 'CVC', 'VC'];
+    const phonotacticConstraints = document.getElementById('phonotactic').value.split(',').map(rule => rule.trim()).filter(Boolean);
     const grammarRule = document.getElementById('grammar').value;
 
-    // Phonotactic rules: no double identical consonants or vowels
     function isPhonotacticallyValid(word) {
-        return !/(.)\1/.test(word); // Disallows repeating the same letter back-to-back
+        // Check custom phonotactic constraints
+        for (const rule of phonotacticConstraints) {
+            if (rule.startsWith("no ")) {
+                const pattern = rule.replace("no ", "").trim();
+                if (word.includes(pattern)) {
+                    return false;
+                }
+            }
+        }
+        return !/(.)\1/.test(word); // Also checks for repeated consecutive characters
     }
 
-    // Create a word based on user-defined syllable structure
     function createWord() {
         let word = '';
         const structure = syllableStructures[Math.floor(Math.random() * syllableStructures.length)];
@@ -25,25 +33,16 @@ function generateConlang() {
             }
         }
 
-        // Ensure word is valid according to phonotactic rules
         return isPhonotacticallyValid(word) ? word : createWord();
     }
 
-    // Generate words with basic morphology (prefixes/suffixes)
-    const prefixes = ['pre', 'un', 'anti', 'neo'];
-    const suffixes = ['-ish', '-ly', '-ment', '-ist'];
-
     function generateMorphedWord(baseWord) {
-        const usePrefix = Math.random() > 0.5;
-        const useSuffix = Math.random() > 0.5;
+        const prefixes = ['pre', 'un', 'anti', 'neo'];
+        const suffixes = ['-ish', '-ly', '-ment', '-ist'];
 
         let word = baseWord;
-        if (usePrefix) {
-            word = prefixes[Math.floor(Math.random() * prefixes.length)] + word;
-        }
-        if (useSuffix) {
-            word += suffixes[Math.floor(Math.random() * suffixes.length)];
-        }
+        if (Math.random() > 0.5) word = prefixes[Math.floor(Math.random() * prefixes.length)] + word;
+        if (Math.random() > 0.5) word += suffixes[Math.floor(Math.random() * suffixes.length)];
 
         return isPhonotacticallyValid(word) ? word : baseWord;
     }
@@ -63,12 +62,36 @@ function generateConlang() {
         }
     }
 
-    // Display the result
-    let resultHTML = `<strong>Grammar:</strong> ${grammarRule}<br>`;
-    for (const part in dictionary) {
-        resultHTML += `<strong>${part.charAt(0).toUpperCase() + part.slice(1)}s:</strong> ${dictionary[part].join(', ')}<br>`;
+    function generateExampleSentence() {
+        const subjects = dictionary['noun'];
+        const verbs = dictionary['verb'];
+        const objects = dictionary['noun'];
+        if (subjects.length && verbs.length && objects.length) {
+            switch (grammarRule) {
+                case 'SVO':
+                    return `${subjects[0]} ${verbs[0]} ${objects[1]}.`;
+                case 'SOV':
+                    return `${subjects[0]} ${objects[1]} ${verbs[0]}.`;
+                case 'VSO':
+                    return `${verbs[0]} ${subjects[0]} ${objects[1]}.`;
+                case 'OSV':
+                    return `${objects[1]} ${subjects[0]} ${verbs[0]}.`;
+                default:
+                    return 'Invalid grammar rule.';
+            }
+        }
+        return 'Insufficient words to generate an example sentence.';
     }
 
-    document.getElementById('conlangResult').innerHTML = resultHTML;
+    // Display the dictionary
+    let dictionaryHTML = '';
+    for (const part in dictionary) {
+        dictionaryHTML += `<strong>${part.charAt(0).toUpperCase() + part.slice(1)}s:</strong> ${dictionary[part].join(', ')}<br>`;
+    }
+    document.getElementById('dictionaryOutput').innerHTML = dictionaryHTML;
+
+    // Display the example sentence
+    document.getElementById('sentenceOutput').innerText = generateExampleSentence();
+
     document.getElementById('output').style.display = 'block';
 }
