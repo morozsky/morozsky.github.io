@@ -2,14 +2,32 @@ document.getElementById('generateBtn').addEventListener('click', generateConlang
 
 function generateConlang() {
     // Get user input or set defaults
-    const consonants = document.getElementById('consonants').value.split(',').filter(Boolean) || ['k', 't', 'r', 'm', 'l', 'z', 'p', 'n', 'sh', 'v'];
-    const vowels = document.getElementById('vowels').value.split(',').filter(Boolean) || ['a', 'e', 'i', 'o', 'u'];
-    const syllableStructures = document.getElementById('syllables').value.split(',').filter(Boolean) || ['CV', 'CVC', 'VC'];
+    const consonants = document.getElementById('consonants').value.split(',').map(c => c.trim()).filter(Boolean);
+    const vowels = document.getElementById('vowels').value.split(',').map(v => v.trim()).filter(Boolean);
+    const syllableStructures = document.getElementById('syllables').value.split(',').map(s => s.trim()).filter(Boolean);
     const phonotacticConstraints = document.getElementById('phonotactic').value.split(',').map(rule => rule.trim()).filter(Boolean);
     const grammarRule = document.getElementById('grammar').value;
 
+    // Default fallback values
+    if (consonants.length === 0) {
+        consonants.push('k', 't', 'r', 'm', 'l', 'z', 'p', 'n', 'sh', 'v');
+    }
+    if (vowels.length === 0) {
+        vowels.push('a', 'e', 'i', 'o', 'u');
+    }
+    if (syllableStructures.length === 0) {
+        syllableStructures.push('CV', 'CVC', 'VC');
+    }
+
+    // Simple English words for translations
+    const translations = {
+        noun: ['tree', 'sky', 'ocean', 'mountain', 'bird', 'stone', 'light', 'shadow', 'fire', 'wind'],
+        verb: ['run', 'jump', 'fly', 'sing', 'write', 'think', 'swim', 'create', 'watch', 'build'],
+        adjective: ['red', 'blue', 'bright', 'dark', 'quiet', 'loud', 'sharp', 'smooth', 'cold', 'warm'],
+        adverb: ['quickly', 'silently', 'gracefully', 'boldly', 'softly', 'hastily', 'rarely', 'often', 'barely', 'always']
+    };
+
     function isPhonotacticallyValid(word) {
-        // Check custom phonotactic constraints
         for (const rule of phonotacticConstraints) {
             if (rule.startsWith("no ")) {
                 const pattern = rule.replace("no ", "").trim();
@@ -18,33 +36,28 @@ function generateConlang() {
                 }
             }
         }
-        return !/(.)\1/.test(word); // Also checks for repeated consecutive characters
+        return true;
     }
 
-    function createWord() {
-        let word = '';
-        const structure = syllableStructures[Math.floor(Math.random() * syllableStructures.length)];
+    function createWord(maxTries = 10) {
+        for (let attempt = 0; attempt < maxTries; attempt++) {
+            let word = '';
+            const structure = syllableStructures[Math.floor(Math.random() * syllableStructures.length)];
 
-        for (let i = 0; i < structure.length; i++) {
-            if (structure[i] === 'C') {
-                word += consonants[Math.floor(Math.random() * consonants.length)];
-            } else if (structure[i] === 'V') {
-                word += vowels[Math.floor(Math.random() * vowels.length)];
+            for (let i = 0; i < structure.length; i++) {
+                if (structure[i] === 'C') {
+                    word += consonants[Math.floor(Math.random() * consonants.length)];
+                } else if (structure[i] === 'V') {
+                    word += vowels[Math.floor(Math.random() * vowels.length)];
+                }
+            }
+
+            if (isPhonotacticallyValid(word)) {
+                return word;
             }
         }
-
-        return isPhonotacticallyValid(word) ? word : createWord();
-    }
-
-    function generateMorphedWord(baseWord) {
-        const prefixes = ['pre', 'un', 'anti', 'neo'];
-        const suffixes = ['-ish', '-ly', '-ment', '-ist'];
-
-        let word = baseWord;
-        if (Math.random() > 0.5) word = prefixes[Math.floor(Math.random() * prefixes.length)] + word;
-        if (Math.random() > 0.5) word += suffixes[Math.floor(Math.random() * suffixes.length)];
-
-        return isPhonotacticallyValid(word) ? word : baseWord;
+        console.warn('Failed to create a valid word after max tries.');
+        return '';
     }
 
     const dictionary = {
@@ -54,11 +67,15 @@ function generateConlang() {
         adverb: []
     };
 
-    for (const part in dictionary) {
-        const wordCount = Math.floor(Math.random() * 10) + 5;
-        for (let i = 0; i < wordCount; i++) {
-            const baseWord = createWord();
-            dictionary[part].push(generateMorphedWord(baseWord));
+    function generateDictionary() {
+        for (const part in dictionary) {
+            const wordCount = Math.min(translations[part].length, Math.floor(Math.random() * 5) + 5);
+            for (let i = 0; i < wordCount; i++) {
+                const baseWord = createWord();
+                if (baseWord) {
+                    dictionary[part].push({ word: baseWord, translation: translations[part][i] });
+                }
+            }
         }
     }
 
@@ -66,32 +83,48 @@ function generateConlang() {
         const subjects = dictionary['noun'];
         const verbs = dictionary['verb'];
         const objects = dictionary['noun'];
+
         if (subjects.length && verbs.length && objects.length) {
+            let sentence;
             switch (grammarRule) {
                 case 'SVO':
-                    return `${subjects[0]} ${verbs[0]} ${objects[1]}.`;
+                    sentence = `${subjects[0].word} ${verbs[0].word} ${objects[1].word}.`;
+                    break;
                 case 'SOV':
-                    return `${subjects[0]} ${objects[1]} ${verbs[0]}.`;
+                    sentence = `${subjects[0].word} ${objects[1].word} ${verbs[0].word}.`;
+                    break;
                 case 'VSO':
-                    return `${verbs[0]} ${subjects[0]} ${objects[1]}.`;
+                    sentence = `${verbs[0].word} ${subjects[0].word} ${objects[1].word}.`;
+                    break;
                 case 'OSV':
-                    return `${objects[1]} ${subjects[0]} ${verbs[0]}.`;
+                    sentence = `${objects[1].word} ${subjects[0].word} ${verbs[0].word}.`;
+                    break;
                 default:
                     return 'Invalid grammar rule.';
             }
+
+            // Translation of the example sentence
+            const sentenceTranslation = `${subjects[0].translation} ${verbs[0].translation} ${objects[1].translation}.`;
+            return { sentence, translation: sentenceTranslation };
         }
-        return 'Insufficient words to generate an example sentence.';
+        return { sentence: 'Insufficient words to generate an example sentence.', translation: '' };
     }
 
-    // Display the dictionary
+    generateDictionary();
+
+    // Display the dictionary with translations
     let dictionaryHTML = '';
     for (const part in dictionary) {
-        dictionaryHTML += `<strong>${part.charAt(0).toUpperCase() + part.slice(1)}s:</strong> ${dictionary[part].join(', ')}<br>`;
+        dictionaryHTML += `<strong>${part.charAt(0).toUpperCase() + part.slice(1)}s:</strong><br>`;
+        dictionary[part].forEach(entry => {
+            dictionaryHTML += `${entry.word} - ${entry.translation}<br>`;
+        });
     }
     document.getElementById('dictionaryOutput').innerHTML = dictionaryHTML;
 
     // Display the example sentence
-    document.getElementById('sentenceOutput').innerText = generateExampleSentence();
+    const example = generateExampleSentence();
+    document.getElementById('sentenceOutput').innerHTML = `<strong>Conlang Sentence:</strong> ${example.sentence}<br><strong>Translation:</strong> ${example.translation}`;
 
     document.getElementById('output').style.display = 'block';
 }
