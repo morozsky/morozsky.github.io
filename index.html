@@ -77,6 +77,9 @@
 
             // Kelimeyi dönüştüren fonksiyon
             function convertWord(word) {
+                // Harf olmayan karakterleri işlem dışı bırak
+                if (!/^[a-zA-ZığüşöçİĞÜŞÖÇ]+$/.test(word)) return word;
+
                 let convertedWord = word;
 
                 // Harfleri değiştirme
