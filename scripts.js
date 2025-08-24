@@ -8,7 +8,7 @@ const siteContent = {
       `
     },
     {
-      title: "fun fact about me (cuz why not)",
+      title: "fun facts about me (cuz why not)",
       content: `
         I like Russia. Why? No reason at all.
         If you think I care about anything, think again.
