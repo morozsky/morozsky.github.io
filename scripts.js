@@ -1,11 +1,7 @@
 const siteContent = {
   sections: [
     {
-      title: "Hello There",
-      content: `
-      ***hello there chump***
-      I'm *morozsky*. just a dude with a love for *code*. I assume you found this from my discord profile. I'd appriciate the comments about my website. Just DM me!
-      `
+
     }
   ]
 };
