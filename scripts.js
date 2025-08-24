@@ -6,15 +6,6 @@ const siteContent = {
       ***hello there chump***
       I'm *morozsky*. just a dude with a love for *code*. I assume you found this from my discord profile. I'd appriciate the comments about my website. Just DM me!
       `
-    },
-    {
-      title: "fun facts about me (cuz why not)",
-      content: `
-        I like Russia. Why? No reason at all.
-        If you think I care about anything, think again.
-        Trying to learn Russian but its just too hard bro :(
-        [This user is being tracked down because of being "way too offensive"]
-      `
     }
   ]
 };
